@@ -42,6 +42,13 @@ if __name__ == '__main__':
     # Prepare e-mail sending
     u_name, d_name = prepare_email(args.email)
 
+    # ---------------------------
+    # Prepare the property parser
+    # ---------------------------
+
+    # Prepare the parser
+    parser = NehnutelnostiPropertyOffersParser()
+
     # -------------------------
     # Parse the property offers
     # -------------------------
@@ -51,13 +58,11 @@ if __name__ == '__main__':
         dog.clear_visited_offers()
 
     # Get the new offers to be checked
-    offers = dog.watch()
+    offers = dog.watch(parser)
 
     if offers:
 
-        # Prepare the e-mail message with the job offers
-        parser = NehnutelnostiPropertyOffersParser()
-
+        # Prepare the message
         message_text = get_email_message_plain(offers, parser.weburl)
         message_html = get_email_message_html(offers, parser.weburl)
 

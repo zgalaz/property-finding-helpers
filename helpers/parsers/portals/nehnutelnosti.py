@@ -26,8 +26,33 @@ class NehnutelnostiPropertyOffersParser(BasePropertyOfferParser):
             return None
 
         # Get the pages to process
-        pages = parsed_html.findAll("li", {"class": "component-pagination__item"})
-        pages = [pages[0].find("a", href=True).attrs.get("href")] if pages else url
+        pages = list(parsed_html.findAll("li", {"class": "component-pagination__item"}))
+
+        # Process the pages
+        if pages:
+
+            # Prepare the page_attr
+            page_attr = "&p[page]="
+
+            # Get the base page data
+            page_href = pages[-2].find("a", href=True).attrs.get("href")
+            page_base = page_href[:page_href.index(page_attr)]
+
+            # Get the last page number
+            page_last = int(page_href[page_href.index(page_attr) + len(page_attr):])
+
+            # Prepare the list of pages
+            pages = []
+
+            # Get the pages
+            for i in range(page_last):
+                if i == 0:
+                    pages.append(page_base)
+                else:
+                    pages.append(f"{page_base}{page_attr}{i + 1}")
+
+        else:
+            pages = [url]
 
         # Return the parsed HTML contents for each of the pages
         return [(url, self.content(url)) for url in pages if url]
@@ -42,9 +67,14 @@ class NehnutelnostiPropertyOffersParser(BasePropertyOfferParser):
 
         # Parse the offers for each page of the input URL
         for paged_url, parsed_html in self.paginate(url):
+            if not parsed_html:
+                continue
 
             # Get the offers
             offers_root = parsed_html.find("div", {"id": "inzeraty"})
+            if not offers_root:
+                continue
+
             offers_list = offers_root.findAll("div", class_="advertisement-item")
             if not offers_list:
                 continue
@@ -95,7 +125,7 @@ class NehnutelnostiPropertyOffersDataExtractor(object):
 
         addr = place[0].getText().strip()
         area = " ".join(place[1].getText().strip().split())
-        area = " ".join(area[area.index("•") + 1:].split())
+        area = " ".join(area[area.index("•") + 1:].split()) if "•" in area else area
         return addr, area
 
     @staticmethod
@@ -104,8 +134,7 @@ class NehnutelnostiPropertyOffersDataExtractor(object):
         price = re.compile(r"\s{2,}").sub("*", price).strip()
 
         all_price = price.split("*")[0]
-        per_meter = price.split("*")[1]
-        per_meter = per_meter.replace("&sup2", "²")
+        per_meter = price.split("*")[1].replace("&sup2", "²") if "*" in all_price else "?/m²"
         return all_price, per_meter
 
     @staticmethod

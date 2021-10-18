@@ -1,3 +1,11 @@
+def get_pride_per_square_str(record):
+    return f' ({record["price_per_square"]}) ' if "price_per_square" in record else ''
+
+
+def get_price_str(record):
+    return record["price"]
+
+
 def as_html(r):
 
     # Prepare the content
@@ -5,7 +13,7 @@ def as_html(r):
         f'<a href="{p["url"]}">{p["label"]}</a> '
         f'adresa: {p["address"]}, '
         f'rozloha: {p["area"]}, '
-        f'cena: {p["price"]} ({p["price_per_square"]})'
+        f'cena: {get_price_str(p)}{get_pride_per_square_str(p)}'
         for p in r
     ]
 
@@ -20,7 +28,7 @@ def as_plain(r):
         f'<a href="{p["url"]}">{p["label"]}</a> '
         f'adresa: {p["address"]}, '
         f'rozloha: {p["area"]}, '
-        f'cena: {p["price"]} ({p["price_per_square"]})'
+        f'cena: {get_price_str(p)}{get_pride_per_square_str(p)}'
         for p in r
     ]
 

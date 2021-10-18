@@ -1,7 +1,5 @@
 import os
 import json
-from helpers.parsers.portals.nehnutelnosti import NehnutelnostiPropertyOffersParser
-
 
 base_path = os.path.dirname(os.path.realpath(__file__))
 sett_path = os.path.join(base_path, 'settings')
@@ -30,10 +28,10 @@ def clear_visited_offers():
         json.dump({"offers": []}, f)
 
 
-def watch():
+def watch(parser):
 
     # Parse the offers
-    offers = NehnutelnostiPropertyOffersParser().parse(load_settings()["url"])
+    offers = parser.parse(load_settings()["url"])
     to_see = []
 
     # get the cache with the already visited offers
