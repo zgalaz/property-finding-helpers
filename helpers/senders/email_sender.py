@@ -1,6 +1,7 @@
 import os
 import json
 import smtplib
+import ssl
 from email.headerregistry import Address
 from email.message import EmailMessage
 from email_split import email_split
@@ -25,9 +26,13 @@ def send_email(from_address, to_address, subject, plaintext, html=None):
     settings = load_settings()
 
     # Prepare sending receiver settings
-    to = (Address(display_name=settings.get('display_name'),
-                  username=to_address['username'],
-                  domain=to_address['domain']),)
+    to = (
+        Address(
+            display_name=settings.get('display_name'),
+            username=to_address['username'],
+            domain=to_address['domain']
+        ),
+    )
 
     # Prepare the message
     message = EmailMessage()
@@ -40,9 +45,13 @@ def send_email(from_address, to_address, subject, plaintext, html=None):
     if html is not None:
         message.add_alternative(html, subtype='html')
 
+    # Prepare the SSL context
+    ssl_context = ssl.create_default_context()
+
+    # Prepare the host and port
+    host, port = settings.get('server'), int(settings.get('port'))
+
     # Send the message
-    with smtplib.SMTP(settings.get('server'), port=int(settings.get('port'))) as smtp_server:
-        smtp_server.ehlo()
-        smtp_server.starttls()
+    with smtplib.SMTP_SSL(host=host, port=port, context=ssl_context) as smtp_server:
         smtp_server.login(settings.get('email_address'), settings.get('email_password'))
         smtp_server.send_message(message)
