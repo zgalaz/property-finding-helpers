@@ -70,6 +70,7 @@ if __name__ == '__main__':
         #
         # Needs the less secure access to be turned on: https://myaccount.google.com/u/2/lesssecureapps?pageId=none
         # More info: https://stackoverflow.com/questions/16512592/login-credentials-not-working-with-gmail-smtp
+        # And: https://joequery.me/guides/python-smtp-authenticationerror/
         send_email(from_address='property.finder.helpers@gmail.com',
                    to_address={'username': u_name, 'domain': d_name},
                    subject=f'nehnutelnosti.sk {today}',
